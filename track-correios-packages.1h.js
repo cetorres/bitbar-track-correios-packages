@@ -9,7 +9,7 @@
  * <bitbar.author.github>cetorres</bitbar.author.github>
  * <bitbar.desc>EN: Track Brazilian Post Office (Correios) packages. PT: Rastreie encomendas dos Correios.</bitbar.desc>
  * <bitbar.abouturl>https://github.com/cetorres/bitbar-track-correios-packages</bitbar.abouturl>
- * <bitbar.image></bitbar.image>
+ * <bitbar.image>https://raw.githubusercontent.com/cetorres/bitbar-track-correios-packages/master/screenshot.png</bitbar.image>
  * <bitbar.dependencies>node</bitbar.dependencies>
  */
 
