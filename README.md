@@ -1,2 +1,5 @@
 # bitbar-track-correios-packages
-EN: Track Brazilian Post Office (Correios) packages. PT: Rastreie encomendas dos Correios.
+English: Track Brazilian Post Office (Correios) packages.<br/>
+Português: Rastreie encomendas dos Correios.
+
+![alt text](https://github.com/cetorres/bitbar-track-correios-packages/blob/master/screenshot.png?raw=true "Screenshot")
