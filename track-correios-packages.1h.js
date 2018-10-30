@@ -19,8 +19,27 @@ var code = ""; // Ex.: AA123456789BR
 
 // Don't change anything else below this line.
 // Não altere mais nada a partir desta linha.
+const fs = require('fs');
 const https = require('https');
 var url = "https://wsmobile.correios.com.br/service/rest/rastro/rastroMobile/FALECONOSC/7KMJ6FISA4/L/T/" + code + "/101";
+var logFile = ".track-correios-package.log";
+
+var getLogData = function(callback) {
+    fs.readFile(__dirname + '/' + logFile, (e, data) => {
+        if (e) {
+            callback(null);
+        }
+        callback(data);
+    });
+}
+
+var saveLogData = function(data) {
+    fs.writeFile(__dirname + '/' + logFile, data, function(err) {
+        if (err) {
+            console.log(err);
+        }
+    });
+}
 
 var refreshMenu = function() {
     console.log("---");
@@ -40,6 +59,10 @@ const toTitleCase = (phrase) => {
         .join(' ') : "";
 };
 
+if (!fs.existsSync(__dirname + '/' + logFile)) {
+    saveLogData(0);
+}
+
 https.get(url, (res) => {
 
     res.setEncoding('utf-8');
@@ -53,55 +76,80 @@ https.get(url, (res) => {
         var responseObject = JSON.parse(responseString);
         var nomeObjeto = responseObject.objeto[0].nome != undefined ? responseObject.objeto[0].nome : "OBJETO";
         var eventos = responseObject.objeto[0].evento;
+        var eventosTotal = eventos != undefined ? eventos.length : 0;
 
-        if (nomeObjeto != "" && eventos.length == 0) {
-            console.log("📦 | color=yellow");
+        if (nomeObjeto != "OBJETO" && eventosTotal == 0) {
+            console.log("📦 0 | color=yellow");
             console.log("---");
             console.log(nomeObjeto + "\n");
             console.log("Código: " + code)
             console.log("---");
-            console.log("Sem eventos no momento.");            
+            console.log("Sem eventos no momento.");      
+            
+            refreshMenu();
+            aboutMenu(); 
         }
-        else if (nomeObjeto == "" && eventos.length == 0) {
-            console.log("📦 | color=yellow");
+        else if (nomeObjeto == "OBJETO" && eventosTotal == 0) {
+            console.log("📦 0 | color=yellow");
             console.log("---");
-            console.log("Sem eventos no momento."); 
-        }
-        else if (nomeObjeto != "" && eventos.length > 0) {
-            var header = eventos.filter(evento => evento.tipo == "PO")[0];
-
-            console.log("📦 " + eventos.length);
-            console.log("---");            
             console.log(nomeObjeto + "\n");
-            console.log("Código: " + code);
-            console.log('Postado em: ' + (header == undefined ? eventos[0].dataPostagem : header.postagem.datapostagem));
-
-            eventos.forEach(evento => {                
-                console.log("---");
-                console.log(evento.data + " - " + evento.hora + "\n");                 
-                if (evento.tipo == "RO") {            
-                    console.log(evento.descricao.trim() + ".\n");                                
-                    console.log("De: " + toTitleCase(evento.unidade.tipounidade) + " em " + toTitleCase(evento.unidade.cidade) + "\n");   
-                    console.log("Para: " + toTitleCase(evento.destino[0].local) + " em " + toTitleCase(evento.destino[0].cidade));
-                } 
-                else {
-                    console.log(evento.descricao.trim() + ".\n");
-                    if (evento.detalhe != undefined) {
-                        console.log(evento.detalhe.trim() + ".\n");                                
-                    }
-                    console.log("De: " + toTitleCase(evento.unidade.tipounidade) + " em " + toTitleCase(evento.unidade.cidade) + "\n"); 
-                    if (evento.postagem != undefined) {
-                        console.log("Para: " + toTitleCase(evento.postagem.destinatario));
-                    }
-                }               
-            });
-
+            console.log("Código: " + code)
             console.log("---");
-            console.log("Ver online | href=" + url);            
-        }
+            console.log("Objeto não encontrado."); 
 
-        refreshMenu();
-        aboutMenu();  
+            refreshMenu();
+            aboutMenu(); 
+        }
+        else if (nomeObjeto != "" && eventosTotal > 0) {
+            var header = eventos.filter(evento => evento.tipo == "PO")[0];            
+            
+            getLogData((data) => {
+                var newEvents = false;
+                var eventosLog = data;
+            
+                if (eventosLog != undefined) {
+                    if (eventosLog != eventosTotal) {
+                        newEvents = true;
+                    }
+                }            
+                
+                saveLogData(eventosTotal);
+
+                console.log("📦 " + eventosTotal + (newEvents ? ' | color=green' : ''));
+                console.log("---");            
+                console.log(nomeObjeto + "\n");
+                console.log("Código: " + code);
+                console.log('Postado em: ' + (header == undefined ? eventos[0].dataPostagem : header.postagem.datapostagem));
+
+                eventos.forEach(evento => {                
+                    console.log("---");
+                    console.log(evento.data + " - " + evento.hora + "\n");                 
+                    if (evento.tipo == "RO") {            
+                        console.log(evento.descricao.trim() + ".\n");                                
+                        console.log("De: " + toTitleCase(evento.unidade.tipounidade) + " em " + toTitleCase(evento.unidade.cidade) + "\n");   
+                        console.log("Para: " + toTitleCase(evento.destino[0].local) + " em " + toTitleCase(evento.destino[0].cidade));
+                    } 
+                    else {
+                        console.log(evento.descricao.trim() + ".\n");
+                        if (evento.detalhe != undefined) {
+                            console.log(evento.detalhe.trim() + ".\n");                                
+                        }
+                        console.log("De: " + toTitleCase(evento.unidade.tipounidade) + " em " + toTitleCase(evento.unidade.cidade) + "\n"); 
+                        if (evento.postagem != undefined) {
+                            console.log("Para: " + toTitleCase(evento.postagem.destinatario));
+                        }
+                    }               
+                });
+
+                console.log("---");
+                console.log("Ver online | href=" + url); 
+                
+                refreshMenu();
+                aboutMenu(); 
+            });                 
+            
+        }
+        
     });
 
 })
