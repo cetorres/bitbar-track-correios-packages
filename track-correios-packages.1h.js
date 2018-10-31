@@ -125,19 +125,23 @@ https.get(url, (res) => {
                     console.log("---");
                     console.log(evento.data + " - " + evento.hora + "\n");                 
                     if (evento.tipo == "RO") {            
-                        console.log(evento.descricao.trim() + ".\n");                                
-                        console.log("De: " + toTitleCase(evento.unidade.tipounidade) + " em " + toTitleCase(evento.unidade.cidade) + "\n");   
-                        console.log("Para: " + toTitleCase(evento.destino[0].local) + " em " + toTitleCase(evento.destino[0].cidade));
+                        console.log(evento.descricao.trim() + "\n");                                                        
+                        console.log("Para: " + toTitleCase(evento.destino[0].local) + (evento.destino[0].cidade != undefined ? (" em " + toTitleCase(evento.destino[0].cidade)) : ""));
+                        console.log("De: " + toTitleCase(evento.unidade.local) + (evento.unidade.cidade != undefined ? (" em " + toTitleCase(evento.unidade.cidade) + "\n") : ""));   
                     } 
+                    else if (evento.tipo == "PAR") {
+                        console.log(evento.descricao.trim() + "\n");                                                        
+                        console.log(toTitleCase(evento.unidade.local));
+                    }
                     else {
-                        console.log(evento.descricao.trim() + ".\n");
+                        console.log(evento.descricao.trim() + "\n");
                         if (evento.detalhe != undefined) {
-                            console.log(evento.detalhe.trim() + ".\n");                                
-                        }
-                        console.log("De: " + toTitleCase(evento.unidade.tipounidade) + " em " + toTitleCase(evento.unidade.cidade) + "\n"); 
+                            console.log(evento.detalhe.trim() + "\n");                                
+                        }                        
                         if (evento.postagem != undefined) {
                             console.log("Para: " + toTitleCase(evento.postagem.destinatario));
                         }
+                        console.log("De: " + toTitleCase(evento.unidade.local) + (evento.unidade.cidade != undefined ? (" em " + toTitleCase(evento.unidade.cidade) + "\n") : "")); 
                     }               
                 });
 
